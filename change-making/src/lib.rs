@@ -1,7 +1,13 @@
+pub fn test() -> u8 {
+    0
+}
+
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn test_returns_0() {
+        assert_eq!(0, test());
     }
 }
