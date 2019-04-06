@@ -6,6 +6,10 @@ pub struct ChangeMachine {
 
 impl ChangeMachine {
     pub fn new(denominations: HashSet<usize>) -> ChangeMachine {
+        if !denominations.contains(&1) {
+            panic!("Must contain the denomination '1'.");
+        }
+
         ChangeMachine{ denominations }
     }
 
