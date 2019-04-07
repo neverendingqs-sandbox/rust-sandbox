@@ -11,8 +11,10 @@ impl ChangeMachine {
             panic!("Must contain the denomination '1'.");
         }
 
-        let subproblems: Vec<u128> = vec![0];
-        ChangeMachine{ denominations, subproblems }
+        ChangeMachine{
+            denominations,
+            subproblems: vec![0]
+        }
     }
 
     pub fn get_num_coins(&mut self, amount: usize) -> u128 {
@@ -40,7 +42,8 @@ impl ChangeMachine {
         self.subproblems[amount]
     }
 
-    pub fn get_change(&mut self, mut amount: usize) -> Vec<usize> {
+    pub fn get_change(&mut self, amount: usize) -> Vec<usize> {
+        let mut amount = amount.clone();
         self.get_num_coins(amount);
 
         let mut change: Vec<usize> = Vec::new();
