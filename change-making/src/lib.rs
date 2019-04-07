@@ -17,29 +17,27 @@ impl ChangeMachine {
 
     pub fn get_num_coins(&mut self, amount: usize) -> u128 {
         let cached_until = self.subproblems.len();
-        if amount < cached_until {
-            return self.subproblems[amount];
-        }
+        if amount >= cached_until {
+            for i in cached_until..(amount + 1) {
+                let mut potentials = Vec::new();
 
-        for i in cached_until..(amount + 1) {
-            let mut potentials = Vec::new();
-            
-            for d in &self.denominations {
-                if d <= &i {
-                    let potential = self.subproblems[i - d] + 1;
-                    potentials.push(potential);
+                for d in &self.denominations {
+                    if d <= &i {
+                        let potential = self.subproblems[i - d] + 1;
+                        potentials.push(potential);
+                    }
                 }
+
+                self.subproblems.push(
+                    match potentials.iter().min() {
+                        Some(p) => *p,
+                        None => 0
+                    }
+                );
             }
-
-            self.subproblems.push(
-                match potentials.iter().min() {
-                    Some(p) => *p,
-                    None => 0
-                }
-            );
         }
 
-        self.subproblems.last().unwrap().clone()
+        self.subproblems[amount]
     }
 }
 
