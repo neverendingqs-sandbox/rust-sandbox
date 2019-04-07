@@ -39,5 +39,29 @@ impl ChangeMachine {
 
         self.subproblems[amount]
     }
+
+    pub fn get_change(&mut self, mut amount: usize) -> Vec<usize> {
+        self.get_num_coins(amount);
+
+        let mut change: Vec<usize> = Vec::new();
+        while amount > 0 {
+            let mut potentials = Vec::new();
+            for d in &self.denominations {
+                if d <= &amount {
+                    let potential = (d, amount - d);
+                    potentials.push(potential);
+                }
+            }
+
+            let (best_denomination, remaining_amount) = potentials.iter()
+                .min_by(|(_, x_remaining_amount), (_, y_remaining_amount)| x_remaining_amount.cmp(y_remaining_amount) )
+                .unwrap();
+            
+            amount = *remaining_amount;
+            change.push(**best_denomination);
+        }
+
+        change
+    }
 }
 

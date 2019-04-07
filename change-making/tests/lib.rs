@@ -63,3 +63,43 @@ fn GetNumCoins_CanadianDenomination_ReturnsValidNumberOfCoins() {
         );
     }
 }
+
+#[test]
+fn GetChange_AmountIsExactlyEqualToADenomination_ReturnsCoin() {
+    let coins = vec![1, 5, 10, 25, 100, 200];
+    let denominations = create_denominations(coins.clone());
+    let mut sut = change_making::ChangeMachine::new(denominations);
+
+    for c in coins {
+        let actual = sut.get_change(c);
+        assert_eq!(1, actual.len(), "Coin: {}", c);
+        assert_eq!(c, actual[0], "Coin: {}", c);
+    }
+}
+
+#[test]
+fn GetChange_CanadianDenominationAndValidAmount_ReturnsCorrectChange() {
+    let denominations = create_denominations(vec![1, 5, 10, 25, 100, 200]);
+    let mut sut = change_making::ChangeMachine::new(denominations);
+
+    let testcases: Vec<(usize, Vec<usize>)> = vec![
+        ( 4, vec![1, 1, 1, 1] ),
+        ( 9, vec![5, 1, 1, 1, 1] ),
+        ( 42, vec![25, 10, 5, 1, 1] ),
+        ( 50, vec![25, 25] ),
+        ( 68, vec![25, 25, 10, 5, 1, 1, 1] ),
+        ( 230, vec![200, 25, 5] ),
+        ( 250, vec![200, 25, 25] ),
+        ( 330, vec![200, 100, 25, 5] ),
+        ( 500, vec![200, 200, 100] ),
+    ];
+
+    for (amount, expected) in testcases.iter() {
+        let actual = sut.get_change(*amount);
+
+        assert_eq!(expected.len(),actual.len());
+        for (i, c) in expected.iter().enumerate() {
+            assert_eq!(*c, actual[i]);
+        }
+    }
+}
