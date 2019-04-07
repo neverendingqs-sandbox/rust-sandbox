@@ -1,4 +1,6 @@
 #![allow(non_snake_case)]
+use itertools;
+use itertools::Itertools;
 use std::collections::HashSet;
 
 use change_making;
@@ -55,10 +57,10 @@ fn GetNumCoins_CanadianDenomination_ReturnsValidNumberOfCoins() {
         ( 500, 3 ),
     ];
 
-    for (amount, expect_num_coins) in testcases.iter() {
+    for (amount, expect_num_coins) in testcases {
         assert_eq!(
-            *expect_num_coins,
-            sut.get_num_coins(*amount),
+            expect_num_coins,
+            sut.get_num_coins(amount),
             "amount: {}; expected_num_coins: {}", amount, expect_num_coins
         );
     }
@@ -94,12 +96,32 @@ fn GetChange_CanadianDenominationAndValidAmount_ReturnsCorrectChange() {
         ( 500, vec![200, 200, 100] ),
     ];
 
-    for (amount, expected) in testcases.iter() {
-        let actual = sut.get_change(*amount);
+    for (amount, expected) in testcases {
+        let actual = sut.get_change(amount);
 
-        assert_eq!(expected.len(),actual.len());
-        for (i, c) in expected.iter().enumerate() {
-            assert_eq!(*c, actual[i]);
-        }
+        itertools::assert_equal(
+            expected.iter().sorted(),
+            actual.iter().sorted()
+        );
+    }
+}
+
+#[test]
+fn GetChange_IrregularDenominationAndValidAmount_ReturnsCount() {
+    let testcases: Vec<(usize, HashSet<usize>, Vec<usize>)> = vec![
+        (5, create_denominations(vec![1, 2, 3]), vec![2, 3]),    // contains two valid subproblem paths
+        (6, create_denominations(vec![1, 3, 4]), vec![3, 3]),
+        (7, create_denominations(vec![1, 3, 4, 5]), vec![4, 3]),
+        (194, create_denominations(vec![1, 3, 5, 10, 12, 50, 100]), vec![100, 50, 12, 12, 10, 10]),
+    ];
+
+    for (amount, denominations, expected) in testcases {
+        let mut sut = change_making::ChangeMachine::new(denominations);
+        let actual = sut.get_change(amount);
+
+        itertools::assert_equal(
+            expected.iter().sorted(),
+            actual.iter().sorted()
+        );
     }
 }

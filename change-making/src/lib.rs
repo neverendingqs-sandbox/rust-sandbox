@@ -45,20 +45,12 @@ impl ChangeMachine {
 
         let mut change: Vec<usize> = Vec::new();
         while amount > 0 {
-            let mut potentials = Vec::new();
             for d in &self.denominations {
-                if d <= &amount {
-                    let potential = (d, amount - d);
-                    potentials.push(potential);
+                if d <= &amount && self.subproblems[amount - d] == self.subproblems[amount] - 1 {
+                    change.push(d.clone());
+                    amount = amount - d;
                 }
             }
-
-            let (best_denomination, remaining_amount) = potentials.iter()
-                .min_by(|(_, x_remaining_amount), (_, y_remaining_amount)| x_remaining_amount.cmp(y_remaining_amount) )
-                .unwrap();
-            
-            amount = *remaining_amount;
-            change.push(**best_denomination);
         }
 
         change
