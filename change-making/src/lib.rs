@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 pub struct ChangeMachine {
     denominations: HashSet<usize>,
+    subproblems: Vec<u128>,
 }
 
 impl ChangeMachine {
@@ -10,24 +11,27 @@ impl ChangeMachine {
             panic!("Must contain the denomination '1'.");
         }
 
-        ChangeMachine{ denominations }
+        let subproblems: Vec<u128> = vec![0];
+        ChangeMachine{ denominations, subproblems }
     }
 
-    pub fn get_num_coins(&self, amount: usize) -> u128 {
-        let mut subproblems: Vec<u128> = Vec::new();
-        subproblems.push(0);
+    pub fn get_num_coins(&mut self, amount: usize) -> u128 {
+        let cached_until = self.subproblems.len();
+        if amount < cached_until {
+            return self.subproblems[amount];
+        }
 
-        for i in 1..(amount + 1) {
+        for i in cached_until..(amount + 1) {
             let mut potentials = Vec::new();
             
             for d in &self.denominations {
                 if d <= &i {
-                    let potential = subproblems[i - d] + 1;
+                    let potential = self.subproblems[i - d] + 1;
                     potentials.push(potential);
                 }
             }
 
-            subproblems.push(
+            self.subproblems.push(
                 match potentials.iter().min() {
                     Some(p) => *p,
                     None => 0
@@ -35,7 +39,7 @@ impl ChangeMachine {
             );
         }
 
-        *subproblems.last().unwrap()
+        self.subproblems.last().unwrap().clone()
     }
 }
 
